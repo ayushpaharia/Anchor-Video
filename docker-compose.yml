@@ -1,0 +1,22 @@
+version: "3.7" 
+services:
+  api:
+    container_name: fampay-golang
+    build: .
+    volumes:
+      - ./:/home
+    ports:
+      - "50051:50051"
+    tty: true
+    env_file: 
+    - ./.env.docker
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:4.4.12-focal
+    env_file:
+      - .env
+    volumes:
+      - ./db-data:/var/lib/mongodb
+    ports:
+      - "2717:27017"

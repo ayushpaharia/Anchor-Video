@@ -1,0 +1,4 @@
+# tmp files
+/tmp
+*.tmp
+/db-data

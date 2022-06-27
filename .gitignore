@@ -1,0 +1,13 @@
+# tmp files
+/tmp
+*.tmp
+
+
+# Secrets
+.env
+client_secret.json
+.env.example
+.env.docker
+
+# db
+/db-data
