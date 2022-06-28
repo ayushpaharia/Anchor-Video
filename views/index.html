@@ -31,9 +31,10 @@
       <h1 class="text-2xl text-white font-semibold">fampay-youtube</h1>
     </nav>
     <main class="px-16 pt-8">
-      <div class="flex justify-between items-center">
-        <h1 class="font-bold">{{.Title}}</h1>
+      <div class="mt-8 flex justify-between items-center">
+        <h1 class="font-bold font-bold text-lg">{{.Title}}</h1>
         <input
+          id="search-field"
           type="text"
           class="bg-gray-100 rounded-full px-8 py-4 placeholder:text-sm outline-none font-bold text-gray-700"
           placeholder="Search Videos"
@@ -73,21 +74,57 @@
       let totalPages = 0
 
       const results = document.getElementById("results")
-      // document.getElementById("prev-page").addEventListener("click", () => {
-      //    if (currentPage > 0) {
-      //      currentPage--
-      //      videos = await getVideos()
-      //      updateResults(videos)
-      //    }
-      //  })
-      //  const nextPageButton = document.getElementById("next-page").addEventListener("click", () => {
-      //    if (currentPage <= totalPages) {
-      //      currentPage++
-      //      videos = await getVideos()
-      //      updateResults(videos)
-      //    }
-      //  })
-      const sortByButton = document.getElementById("sort-by")
+      document
+        .getElementById("prev-page")
+        .addEventListener("click", async () => {
+          if (currentPage > 1) {
+            currentPage--
+            videos = await getVideos()
+            updateResults(videos)
+          }
+        })
+
+      document
+        .getElementById("next-page")
+        .addEventListener("click", async () => {
+          if (currentPage <= totalPages) {
+            currentPage++
+            videos = await getVideos()
+            updateResults(videos)
+          }
+        })
+
+      document.getElementById("sort-by").addEventListener("click", async () => {
+        if (sortBy === "dsc") {
+          sortBy = "asc"
+        } else sortBy = "dsc"
+        videos = await getVideos()
+        updateResults(videos)
+      })
+
+      const debounce = (func, wait, immediate) => {
+        var timeout
+        return function () {
+          let context = this,
+            args = arguments
+          let later = function () {
+            timeout = null
+            if (!immediate) func.apply(context, args)
+          }
+          let callNow = immediate && !timeout
+          clearTimeout(timeout)
+          timeout = setTimeout(later, wait)
+          if (callNow) func.apply(context, args)
+        }
+      }
+      document.getElementById("search-field").addEventListener(
+        "keyup",
+        debounce(async () => {
+          searchInput = document.getElementById("search-field").value
+          videos = await getVideos()
+          updateResults(videos)
+        }, 500),
+      )
 
       const getVideos = () => {
         return fetch(
@@ -96,17 +133,18 @@
       }
 
       const updateResults = (videos) => {
+        results.innerHTML = null
         videos?.data.forEach((element) => {
           let videoElement = document.createElement("div")
           videoElement.className =
-            "flex mt-8 rounded-xl p-8 bg-gray-100 h-full flex"
+            "flex mt-8 rounded-xl p-8 bg-gray-100 h-full flex space-x-4 drop-shadow-xl"
           videoElement.innerHTML = `
              <div>
                <h1 class="text-lg font-bold mt-6">${element.title}</h1>
                <p class="text-sm mt-6">${element.description}</p>
              </div>
              <span class="grow"></span>
-             <img class="object-contain h-64" src="${element.thumbnailUrl}"/>
+             <img class="object-contain rounded-md drop-shadow-md h-64" src="${element.thumbnailUrl}"/>
            `
           results.appendChild(videoElement)
         })
