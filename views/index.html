@@ -87,7 +87,7 @@
       document
         .getElementById("next-page")
         .addEventListener("click", async () => {
-          if (currentPage <= totalPages) {
+          if (currentPage <= totalPages && !(videos.data.length < 5)) {
             currentPage++
             videos = await getVideos()
             updateResults(videos)
@@ -120,6 +120,9 @@
       document.getElementById("search-field").addEventListener(
         "keyup",
         debounce(async () => {
+          ;(function () {
+            currentPage = 1
+          })()
           searchInput = document.getElementById("search-field").value
           videos = await getVideos()
           updateResults(videos)
