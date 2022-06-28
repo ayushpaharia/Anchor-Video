@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	query      = flag.String("query", "Google", "Search term")
+	query      = flag.String("query", "Facebook", "Search term")
 	maxResults = flag.Int64("max-results", 25, "Max YouTube results")
 )
 

@@ -7,6 +7,5 @@ import (
 )
 
 func YoutubeRoutes(route fiber.Router) {
-	route.Get("/", controllers.Something)
 	route.Get("/videos", controllers.GetVideosPaginated)
 }

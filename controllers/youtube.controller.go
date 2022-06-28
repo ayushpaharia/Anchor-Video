@@ -14,16 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func Something(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"data":    "Hello",
-		"success": true,
-	})
-}
-
 func GetVideosPaginated(c *fiber.Ctx) error {
-	// page := c.Query("page")
-	// limit := c.Query("limit")
 	videosCollection := config.MI.DB.Collection("videos")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -32,6 +23,7 @@ func GetVideosPaginated(c *fiber.Ctx) error {
 	filter := bson.M{}
 	findOptions := options.Find()
 
+	// Search query on the title and description
 	if s := c.Query("s"); s != "" {
 		filter = bson.M{
 			"$or": []bson.M{
@@ -55,6 +47,7 @@ func GetVideosPaginated(c *fiber.Ctx) error {
 		}
 	}
 
+	// Sorted order
 	if sort := c.Query("sort"); sort != "" {
 		if sort == "asc" {
 			findOptions.SetSort(bson.D{{Key: "publishedAt", Value: 1}})
@@ -68,8 +61,9 @@ func GetVideosPaginated(c *fiber.Ctx) error {
 
 	total, _ := videosCollection.CountDocuments(ctx, filter)
 
-	findOptions.SetSkip((int64(page) - 1) * perPage)
-	findOptions.SetLimit(perPage)
+	// Pagination
+	findOptions.SetSkip((int64(page) - 1) * perPage) // Current Page
+	findOptions.SetLimit(perPage)                    // Per page
 
 	cursor, err := videosCollection.Find(ctx, filter, findOptions)
 	if err != nil {
@@ -91,9 +85,12 @@ func GetVideosPaginated(c *fiber.Ctx) error {
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"data":    "",
-			"success": false,
-			"error":   err.Error(),
+			"data":      nil,
+			"total":     0,
+			"page":      0,
+			"last_page": 0,
+			"success":   false,
+			"error":     err.Error(),
 		})
 	}
 
@@ -103,5 +100,6 @@ func GetVideosPaginated(c *fiber.Ctx) error {
 		"page":      page,
 		"last_page": math.Ceil(float64(total) / float64(perPage)),
 		"success":   true,
+		"error":     nil,
 	})
 }
