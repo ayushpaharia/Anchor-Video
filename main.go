@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/template/html"
 	"github.com/joho/godotenv"
 )
 
@@ -21,7 +22,9 @@ func main() {
 			log.Fatal("Error loading .env file")
 		}
 	}
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		Views: html.New("./views", ".html"),
+	})
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -48,13 +51,18 @@ func main() {
 
 func setupRoutes(app *fiber.App) {
 	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Render("index", fiber.Map{
+			"Title": "Fampay YouTube",
+		})
+	})
+
+	api := app.Group("/api")
+	api.Get("/", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"success":     true,
 			"message":     "You are at the root endpoint 😉",
 			"github_repo": "https://github.com/ayushpaharia/fampay-youtube",
 		})
 	})
-
-	api := app.Group("/api")
 	routes.YoutubeRoutes(api.Group("/youtube"))
 }

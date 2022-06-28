@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Poppins:100,100italic,200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic,800,800italic,900,900italic);
+
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="flex bg-black items-center space-x-4 px-16 py-8">
+      <img
+        src="https://ik.imagekit.io/rezza/Fampay-logo_zxkv3cEgh.webp?ik-sdk-version=javascript-1.4.3&updatedAt=1656398248181"
+        alt="logo"
+        class="h-10 text-white font-bold"
+      />
+      <h1 class="text-2xl text-white font-semibold">fampay-youtube</h1>
+    </nav>
+    <main class="px-16 pt-8">
+      <div class="flex justify-between items-center">
+        <h1 class="font-bold">{{.Title}}</h1>
+        <input
+          type="text"
+          class="bg-gray-100 rounded-full px-8 py-4 placeholder:text-sm outline-none font-bold text-gray-700"
+          placeholder="Search Videos"
+        />
+        <span class="flex space-x-4">
+          <div class="flex space-x-2">
+            <button
+              id="sort-by"
+              class="bg-green-400 h-10 rounded-md px-3 text-sm py-2 text-white"
+            >
+              Sortby DSC
+            </button>
+            <button
+              id="prev-page"
+              class="bg-red-400 h-10 rounded-md px-3 text-sm py-2 text-white"
+            >
+              < Previous Page
+            </button>
+            <button
+              id="next-page"
+              class="bg-blue-400 h-10 rounded-md px-3 text-sm py-2 text-white"
+            >
+              Next Page >
+            </button>
+          </div>
+        </span>
+      </div>
+      <div id="results" class="flex flex-col space-y-3">
+        <!-- Data here -->
+      </div>
+    </main>
+    <script>
+      const baseUrl = "http://localhost:50051/api/youtube/videos"
+      let currentPage = 1
+      let searchInput = ""
+      let sortBy = "dsc"
+      let totalPages = 0
+
+      const results = document.getElementById("results")
+      // document.getElementById("prev-page").addEventListener("click", () => {
+      //    if (currentPage > 0) {
+      //      currentPage--
+      //      videos = await getVideos()
+      //      updateResults(videos)
+      //    }
+      //  })
+      //  const nextPageButton = document.getElementById("next-page").addEventListener("click", () => {
+      //    if (currentPage <= totalPages) {
+      //      currentPage++
+      //      videos = await getVideos()
+      //      updateResults(videos)
+      //    }
+      //  })
+      const sortByButton = document.getElementById("sort-by")
+
+      const getVideos = () => {
+        return fetch(
+          `${baseUrl}?page=${currentPage}&s=${searchInput}&sort=${sortBy}`,
+        ).then((res) => res.json())
+      }
+
+      const updateResults = (videos) => {
+        videos?.data.forEach((element) => {
+          let videoElement = document.createElement("div")
+          videoElement.className =
+            "flex mt-8 rounded-xl p-8 bg-gray-100 h-full flex"
+          videoElement.innerHTML = `
+             <div>
+               <h1 class="text-lg font-bold mt-6">${element.title}</h1>
+               <p class="text-sm mt-6">${element.description}</p>
+             </div>
+             <span class="grow"></span>
+             <img class="object-contain h-64" src="${element.thumbnailUrl}"/>
+           `
+          results.appendChild(videoElement)
+        })
+      }
+
+      window.addEventListener("load", async function () {
+        videos = await getVideos()
+        totalPages = videos?.last_page
+        updateResults(videos)
+      })
+    </script>
+  </body>
+</html>

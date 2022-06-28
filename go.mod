@@ -15,6 +15,7 @@ require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/aws/aws-sdk-go v1.34.28 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
+	github.com/gofiber/template v1.6.28
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
