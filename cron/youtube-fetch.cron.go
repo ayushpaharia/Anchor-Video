@@ -12,6 +12,7 @@ import (
 )
 
 func StartYoutubeFetch() {
+	fmt.Println("Starting Youtube Fetch")
 	apiKeyString := os.Getenv("YOUTUBE_API_KEYS")
 	apiKeys := strings.Split(apiKeyString, ";")
 	c := cron.New()
@@ -30,12 +31,11 @@ func StartYoutubeFetch() {
 			c.Stop()
 		}
 	})
-
 	c.Start()
 }
 
 func fetchWithAPIKey(c *cron.Cron, APIKey string) (models.Videos, error) {
-	fmt.Printf("APIKey:%s", APIKey)
+	fmt.Printf("APIKey:%s\n", APIKey)
 	videos, err := util.FetchVideos(APIKey)
 	if err != nil {
 		log.Printf("APIKey:[%s] Exausted", APIKey)

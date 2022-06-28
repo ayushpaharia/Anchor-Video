@@ -2,9 +2,11 @@ package main
 
 import (
 	"fampay-youtube/config"
-	"fampay-youtube/cron"
+	"fampay-youtube/routes"
+	"fmt"
 	"log"
 	"os"
+	"os/signal"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -21,6 +23,14 @@ func main() {
 	}
 	app := fiber.New()
 
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		fmt.Println("\nShutting down...")
+		app.Shutdown()
+	}()
+
 	app.Use(cors.New())
 	app.Use(logger.New())
 
@@ -28,13 +38,11 @@ func main() {
 
 	setupRoutes(app)
 
-	cron.StartYoutubeFetch()
+	// cron.StartYoutubeFetch()
 
-	// port := string(os.Getenv("PORT"))
-	err := app.Listen(":50051")
-	if err != nil {
-		log.Fatal("Error app failed to start ", err)
-		panic(err)
+	port := string(os.Getenv("PORT"))
+	if err := app.Listen(":" + port); err != nil {
+		log.Panic("Error app failed to start ", err)
 	}
 }
 
@@ -46,4 +54,7 @@ func setupRoutes(app *fiber.App) {
 			"github_repo": "https://github.com/ayushpaharia/fampay-youtube",
 		})
 	})
+
+	api := app.Group("/api")
+	routes.YoutubeRoutes(api.Group("/youtube"))
 }

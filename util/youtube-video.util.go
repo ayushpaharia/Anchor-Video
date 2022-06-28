@@ -2,23 +2,29 @@ package util
 
 import (
 	"context"
+	"fampay-youtube/config"
 	"fampay-youtube/models"
 	"flag"
 	"fmt"
 	"log"
+	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/api/option"
 	"google.golang.org/api/youtube/v3"
 )
 
 var (
-	query      = flag.String("query", "Cricket", "Search term")
+	query      = flag.String("query", "Google", "Search term")
 	maxResults = flag.Int64("max-results", 25, "Max YouTube results")
 )
 
 func FetchVideos(APIKey string) (models.Videos, error) {
 	flag.Parse()
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	service, err := youtube.NewService(ctx, option.WithAPIKey(APIKey))
 	if err != nil {
@@ -52,9 +58,38 @@ func FetchVideos(APIKey string) (models.Videos, error) {
 }
 
 func StoreVideos(videos models.Videos) {
-	fmt.Println("\nStoring videos")
+	videoCollection := config.MI.DB.Collection("videos")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err := videoCollection.Indexes().CreateOne(
+		ctx,
+		mongo.IndexModel{
+			Keys:    bson.D{{Key: "videoId", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+
 	for _, video := range videos {
-		fmt.Println(video.Title)
+		doc := bson.D{
+			{Key: "videoId", Value: video.VideoId},
+			{Key: "title", Value: video.Title},
+			{Key: "description", Value: video.Description},
+			{Key: "thumbnailUrl", Value: video.ThumbnailURL},
+			{Key: "publishedAt", Value: video.PublishedAt},
+		}
+
+		video, err := videoCollection.InsertOne(ctx, doc, &options.InsertOneOptions{})
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		fmt.Println("Inserted", video, "videos")
 	}
 }
 
