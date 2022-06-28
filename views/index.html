@@ -73,6 +73,12 @@
       let sortBy = "dsc"
       let totalPages = 0
 
+      const backToStart = () => {
+        ;(function () {
+          currentPage = 1
+        })()
+      }
+
       const results = document.getElementById("results")
       document
         .getElementById("prev-page")
@@ -95,6 +101,7 @@
         })
 
       document.getElementById("sort-by").addEventListener("click", async () => {
+        backToStart()
         if (sortBy === "dsc") {
           sortBy = "asc"
         } else sortBy = "dsc"
@@ -120,9 +127,7 @@
       document.getElementById("search-field").addEventListener(
         "keyup",
         debounce(async () => {
-          ;(function () {
-            currentPage = 1
-          })()
+          backToStart()
           searchInput = document.getElementById("search-field").value
           videos = await getVideos()
           updateResults(videos)

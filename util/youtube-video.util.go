@@ -85,7 +85,7 @@ func StoreVideos(videos models.Videos) {
 
 		video, err := videoCollection.InsertOne(ctx, doc, &options.InsertOneOptions{})
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("duplicate")
 			continue
 		}
 
