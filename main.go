@@ -2,6 +2,7 @@ package main
 
 import (
 	"fampay-youtube/config"
+	"fampay-youtube/cron"
 	"fampay-youtube/routes"
 	"fmt"
 	"log"
@@ -41,7 +42,7 @@ func main() {
 
 	setupRoutes(app)
 
-	// cron.StartYoutubeFetch()
+	cron.StartYoutubeFetch()
 
 	port := string(os.Getenv("PORT"))
 	if err := app.Listen(":" + port); err != nil {
