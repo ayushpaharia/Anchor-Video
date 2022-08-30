@@ -1,7 +1,7 @@
 version: "3.7" 
 services:
   api:
-    container_name: fampay-golang
+    container_name: anchor-video
     build: .
     volumes:
       - ./:/home
