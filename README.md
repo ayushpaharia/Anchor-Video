@@ -1,4 +1,4 @@
-# fampay-youtube
+# anchor-video
 
 ## Goto `localhost:50051` after running to test the API
 
