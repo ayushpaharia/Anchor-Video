@@ -1,4 +1,4 @@
-module fampay-youtube
+module anchor-video
 
 go 1.18
 
